@@ -33,16 +33,21 @@ public class MySqlSessionFactory {
             String sql = buildSelectSql(method);
             try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, PASSWORD);
                  PreparedStatement statement = conn.prepareStatement(sql)) {
-
+                for (int i = 0; i < args.length; i++) {
+                    Object arg = args[i];
+                    if (arg instanceof Integer) {
+                        statement.setInt(i + 1, (int) arg);
+                    } else if (arg instanceof String) {
+                        statement.setString(i + 1, arg.toString());
+                    } else {
+                        throw new RuntimeException("不支持的参数类型");
+                    }
+                }
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    User user = new User();
-                    user.setId(resultSet.getInt("id"));
-                    user.setName(resultSet.getString("name"));
-                    user.setAge(resultSet.getInt("age"));
-                    return user;
+                    return getSelectResult(resultSet, method.getReturnType());
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -104,11 +109,42 @@ public class MySqlSessionFactory {
          */
         private String getSelectWhere(Method method) {
             Parameter[] parameters = method.getParameters();
-            return Arrays.stream(parameters).map((parameter) -> {
+            String whereClause = Arrays.stream(parameters).map((parameter) -> {
                 Param param = parameter.getAnnotation(Param.class);
                 String column = param.value();
                 return column + " = ?";
             }).collect(Collectors.joining(" and "));
+            if (whereClause.isEmpty()) {
+                return null;
+            }
+            return " WHERE " + whereClause;
+        }
+
+        /**
+         * 获取查询结果
+         *
+         * @param resultSet
+         * @param returnType
+         * @return
+         * @throws Exception
+         */
+        private Object getSelectResult(ResultSet resultSet, Class<?> returnType) throws Exception {
+            Constructor<?> constructor = returnType.getConstructor();
+            Object result = constructor.newInstance();
+            Field[] declaredFields = returnType.getDeclaredFields();
+            for (Field field : declaredFields) {
+                String name = field.getName();
+                Class<?> type = field.getType();
+                Object column = null;
+                if (type == String.class) {
+                    column = resultSet.getString(name);
+                } else if (type == int.class || type == Integer.class) {
+                    column = resultSet.getInt(name);
+                }
+                field.setAccessible(true);
+                field.set(result, column);
+            }
+            return result;
         }
     }
 

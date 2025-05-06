@@ -4,10 +4,13 @@ import java.sql.*;
 
 public class Main {
     public static void main(String[] args) {
-        //MySqlSessionFactory mySqlSessionFactory = new MySqlSessionFactory();
-        //UserMapper mapper = mySqlSessionFactory.getMapper(UserMapper.class);
-        //User user = mapper.selectById(1);
-        //System.out.println(user.toString());
+        System.out.println("使用MySqlSessionFactory查询: ");
+        MySqlSessionFactory mySqlSessionFactory = new MySqlSessionFactory();
+        UserMapper mapper = mySqlSessionFactory.getMapper(UserMapper.class);
+        User user = mapper.selectById(1);
+        System.out.println(user);
+
+        System.out.println("使用jdbc查询: ");
         System.out.println(jdbcSelectById(1));
     }
 
