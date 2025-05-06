@@ -1,5 +1,6 @@
 package com.tiv.sqlsession;
 
+import com.tiv.sqlsession.annotation.Table;
 import lombok.Data;
 
 @Data
