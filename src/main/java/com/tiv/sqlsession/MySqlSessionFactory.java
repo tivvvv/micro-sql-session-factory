@@ -4,7 +4,10 @@ import com.tiv.sqlsession.annotation.Param;
 import com.tiv.sqlsession.annotation.Table;
 
 import java.lang.reflect.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +34,7 @@ public class MySqlSessionFactory {
 
         private Object invokeSelect(Object proxy, Method method, Object[] args) {
             String sql = buildSelectSql(method);
+            System.out.println("sql: " + sql);
             try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, PASSWORD);
                  PreparedStatement statement = conn.prepareStatement(sql)) {
                 for (int i = 0; i < args.length; i++) {

@@ -1,4 +1,4 @@
-package com.tiv.sqlsession;
+package com.tiv.sqlsession.model;
 
 import com.tiv.sqlsession.annotation.Table;
 import lombok.Data;

@@ -1,5 +1,8 @@
 package com.tiv.sqlsession;
 
+import com.tiv.sqlsession.mapper.UserMapper;
+import com.tiv.sqlsession.model.User;
+
 import java.sql.*;
 
 public class Main {
@@ -7,8 +10,9 @@ public class Main {
         System.out.println("使用MySqlSessionFactory查询: ");
         MySqlSessionFactory mySqlSessionFactory = new MySqlSessionFactory();
         UserMapper mapper = mySqlSessionFactory.getMapper(UserMapper.class);
-        User user = mapper.selectById(1);
-        System.out.println(user);
+        System.out.println(mapper.selectById(1));
+        System.out.println(mapper.selectByName("Tiv"));
+        System.out.println(mapper.selectByIdAndName(1, "Tiv"));
 
         System.out.println("使用jdbc查询: ");
         System.out.println(jdbcSelectById(1));
